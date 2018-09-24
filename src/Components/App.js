@@ -8,40 +8,55 @@ import { Grid } from 'semantic-ui-react';
 
 
 class App extends Component {
-  state = {
-    shows: [],
-    searchTerm: "",
-    selectedShow: "",
-    episodes: [],
-    filterByRating: "",
+  constructor(props) {
+    super(props)
+      this.state = {
+      loadNum: 1,
+      shows: [],
+      searchTerm: "",
+      selectedShow: "",
+      episodes: [],
+      filterByRating: "",
+    }
   }
 
   componentDidMount = () => {
-    Adapter.getShows().then(shows => this.setState({shows}))
+    Adapter.getShows(this.state.loadNum).then(shows => {
+      console.log(shows)
+      this.setState({
+        shows
+      })
+    })
   }
 
   componentDidUpdate = () => {
     window.scrollTo(0, 0)
   }
 
-  handleSearch (e){
-    this.setState({ searchTerm: e.target.value.toLowerCase() })
+
+  handleSearch = (e) => {
+    const userInput = e.target.value.toLowerCase()
+    this.setState({
+      searchTerm: userInput
+    })
   }
 
+
+
   handleFilter = (e) => {
-    e.target.value === "No Filter" ? this.setState({ filterRating:"" }) : this.setState({ filterRating: e.target.value})
+    e.target.value === "No Filter" ? this.setState({ filterByRating:"" }) : this.setState({ filterByRating: parseInt(e.target.value)})
   }
 
   selectShow = (show) => {
     Adapter.getShowEpisodes(show.id)
     .then((episodes) => this.setState({
       selectedShow: show,
-      episodes
-    }))
+      episodes: episodes
+    }, () => console.log(this.state)))
   }
 
   displayShows = () => {
-    if (this.state.filterByRating){
+    if (this.state.filterByRating !== ""){
       return this.state.shows.filter((s)=> {
         return s.rating.average >= this.state.filterByRating
       })
